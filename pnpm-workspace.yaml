@@ -1,0 +1,14 @@
+# The storefront is its own pnpm project, separate from the platform's workspace one level up.
+# Having this file here makes `pnpm install` stop at this directory.
+
+# Only install versions published at least two weeks ago (in minutes).
+minimumReleaseAge: 20160
+
+allowBuilds:
+  # eslint-import-resolver-typescript's resolver; its native binding arrives as an optional
+  # dependency, so the install check script is not needed.
+  unrs-resolver: false
+
+# SpindleCommerce's own packages can be used as soon as they are released.
+minimumReleaseAgeExclude:
+  - "@spindlecommerce/*"

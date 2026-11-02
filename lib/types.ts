@@ -1,0 +1,25 @@
+export type {
+  BuilderPage,
+  Category,
+  CategoryLink,
+  Localization,
+  Money,
+  PageImage,
+  PageLink,
+  PriceRange,
+  Product,
+  ProductConnection,
+  ProductOption,
+  ProductOptionValue,
+  ProductSummary,
+  ProductVariant,
+  Redirect,
+  RouteResult,
+  SelectedOption,
+  TemplateKind,
+  TemplatePage,
+  VariantSummary,
+  WithTemplate,
+} from "@spindlecommerce/storefront-client";
+
+export type SearchParams = Record<string, string | string[] | undefined>;

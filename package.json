@@ -1,0 +1,48 @@
+{
+  "name": "ecom-storefront",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Sample Next.js storefront for SpindleCommerce: page builder rendering, visual editing and on-demand revalidation.",
+  "packageManager": "pnpm@11.13.1",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "components:types": "spindle-storefront components types --from components.json --out lib/builder-components.ts",
+    "components:push": "spindle-storefront components push components.json --env-file .env.local"
+  },
+  "dependencies": {
+    "@spindlecommerce/storefront-client": "^0.1.0",
+    "@spindlecommerce/storefront-next": "^0.1.0",
+    "@spindlecommerce/storefront-react": "^0.1.0",
+    "@stripe/react-stripe-js": "7.0.0",
+    "@stripe/stripe-js": "10.0.0",
+    "geist": "1.7.2",
+    "lucide-react": "1.55.0",
+    "markdown-it": "14.3.3",
+    "next": "16.4.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sanitize-html": "2.18.1",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@spindlecommerce/storefront-cli": "^0.1.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/markdown-it": "14.2.0",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/sanitize-html": "2.16.2",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3"
+  }
+}
