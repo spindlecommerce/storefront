@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { loadCheckoutCart, placeOrder, type PlaceOrderResult } from "@/lib/checkout";
 import { inMarket, localized } from "@/lib/market";
+import { readStripeReturn, rememberStripeReturnOrder } from "@/lib/stripe-return";
 
 const go = async (location: string) => new Response(null, { status: 303, headers: { location: await localized(location), "cache-control": "no-store" } });
 
@@ -17,16 +18,21 @@ const complete = async (request: NextRequest) => {
   const params = request.nextUrl.searchParams;
   const intent = params.get("payment_intent") ?? "";
   if (!/^pi_[A-Za-z0-9_]{1,190}$/.test(intent)) return go("/checkout");
-  // The payment did not go through: there is no order to place.
-  if (["failed", "canceled", "requires_payment_method"].includes(params.get("redirect_status") ?? "")) return go("/checkout?payment=failed");
+  if (!["succeeded", "processing", "requires_capture"].includes(params.get("redirect_status") ?? "")) return go("/checkout?payment=failed");
 
   let result: PlaceOrderResult;
   try {
-    // A link to this page must not place an order without a payment session (e.g. an offline
-    // method). A cart that is no longer open (null) goes on: placing returns the order it became.
+    const binding = await readStripeReturn(intent, params.get("payment_intent_client_secret") ?? "");
+    if (!binding) return go("/checkout");
+    if (!binding.hasCart) {
+      return go(binding.orderNumber ? `/checkout/confirmation/${encodeURIComponent(binding.orderNumber)}` : "/checkout");
+    }
+    // A webhook may have converted the bound cart already (null); the API then returns its
+    // existing order. An open cart must still be this Stripe session's positive-total cart.
     const cart = await loadCheckoutCart();
-    if (cart && !cart.selectedPayment?.sessionRequired) return go("/checkout");
+    if (cart && (cart.id !== binding.cartId || cart.selectedPayment?.provider !== "stripe" || !cart.selectedPayment.sessionRequired || !(Number(cart.cost?.total?.amount) > 0))) return go("/checkout");
     result = await placeOrder(`stripe-${intent}`, {});
+    if (result.ok) await rememberStripeReturnOrder(result.number);
   } catch (error) {
     console.error("Placing the order after the payment redirect failed", error);
     return go("/checkout?payment=error");

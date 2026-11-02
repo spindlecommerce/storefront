@@ -4,7 +4,13 @@
 # Only install versions published at least two weeks ago (in minutes).
 minimumReleaseAge: 20160
 
+# Keep the test runner's Vite dependency compatible with the supported Node 20.9 baseline.
+overrides:
+  vite: 6.4.4
+
 allowBuilds:
+  # esbuild's executable is supplied by its platform-specific optional dependency.
+  esbuild: false
   # eslint-import-resolver-typescript's resolver; its native binding arrives as an optional
   # dependency, so the install check script is not needed.
   unrs-resolver: false

@@ -9,6 +9,7 @@ import { couponReason } from "./coupons";
 import type { Translator } from "./i18n";
 import { getT, localized } from "./market";
 import { storefront } from "./storefront";
+import { rememberStripeReturn } from "./stripe-return";
 
 /**
  * Checkout over the Storefront API, with its results in the shopper's language. The cart id stays
@@ -106,7 +107,13 @@ export const removeCoupon = async (code: string) => toChange(await (await checko
 export const createPaymentSession = async (): Promise<PaymentSessionResult> => {
   const { m } = await getT();
   const result = await (await checkout()).createPaymentSession();
-  if (result.ok) return { ok: true, provider: result.session.provider, clientData: result.session.clientData, amount: result.session.amount };
+  if (result.ok) {
+    const { session } = result;
+    // Free carts have no PaymentIntent and must be submitted through the checkout action.
+    const cart = session.provider === "stripe" && session.clientData.clientSecret ? await loadCheckoutCart() : null;
+    await rememberStripeReturn(cart?.id ?? null, cart && Number(session.amount?.amount) > 0 ? session.clientData.clientSecret : null);
+    return { ok: true, provider: session.provider, clientData: session.clientData, amount: session.amount };
+  }
   if (result.reason === "expired") return { ok: false, message: m.checkoutErrors.expired };
   if (result.reason === "not_ready") return { ok: false, message: m.checkoutErrors.notReadyForPayment };
   // The cart became an order, or the provider refused (the message says why).

@@ -9,6 +9,7 @@
     "node": ">=20.9.0"
   },
   "scripts": {
+    "test": "vitest run",
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start --port 3000",
@@ -43,6 +44,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.1",
     "tailwindcss": "4.3.3",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
   }
 }
